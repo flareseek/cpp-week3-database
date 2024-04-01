@@ -20,7 +20,7 @@ struct Entry {
 struct Database {
   int currentSize;
   int maxSize;
-  Entry *entries;
+  Entry **entries;
 };
 
 // 엔트리를 생성한다.

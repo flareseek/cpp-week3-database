@@ -56,8 +56,9 @@ void deleteVoidPointer(Type type, void* value) {
     }
 }
 
-void deleteEntry(Entry &entry) {
-    deleteVoidPointer(entry.type, entry.value);
+void deleteEntry(Entry *entry) {
+    deleteVoidPointer(entry->type, entry->value);
+    delete entry;
 }
 
 Type getType() {
@@ -82,40 +83,39 @@ Entry *create(Type type, std::string key, void *value) {
 void init(Database &database) {
     database.currentSize = 0;
     database.maxSize = INITIAL_SIZE;
-    database.entries = new Entry[database.maxSize];
+    database.entries = new Entry*[database.maxSize];
 }
 
 void add(Database &database, Entry *entry) {
     if (database.currentSize >= database.maxSize) {
         database.maxSize *= 2;
-        Entry *newEntry = new Entry[database.maxSize];
+        Entry **newEntry = new Entry*[database.maxSize];
         for (int entryIndex = 0; entryIndex < database.currentSize; entryIndex++) {
             newEntry[entryIndex] = database.entries[entryIndex];
         }
         delete[] database.entries;
         database.entries = newEntry;
     }
-    database.entries[database.currentSize] = *entry;
-    delete entry;
-    entry = &(database.entries[database.currentSize]);
+    database.entries[database.currentSize] = entry;
     database.currentSize ++;
 }
 
 Entry *get(Database &database, std::string &key) {
-    for (int i = 0; i < database.currentSize; i++) {
-        if (database.entries[i].key.compare(key) == 0) {
-            return &(database.entries[i]);
+    for (int entryIndex = 0; entryIndex < database.currentSize; entryIndex++) {
+        if (database.entries[entryIndex]->key.compare(key) == 0) {
+            return database.entries[entryIndex];
         }
     }
     return NULL;
 }
 
 void remove(Database &database, std::string &key) {
-    for (int i = 0; i < database.currentSize; i++) {
-        if (database.entries[i].key.compare(key) == 0) {
-            deleteEntry(database.entries[i]);
-            for(int j = i; j < database.currentSize - 1; j++) {
-                database.entries[j] = database.entries[j+1];
+    for (int entryIndex = 0; entryIndex < database.currentSize; entryIndex++) {
+        if (database.entries[entryIndex]->key.compare(key) == 0) {
+            deleteEntry(database.entries[entryIndex]);
+            while(entryIndex < database.currentSize - 1) {
+                database.entries[entryIndex] = database.entries[entryIndex + 1];
+                entryIndex ++;
             }
             database.currentSize --;
             return;
@@ -196,8 +196,7 @@ Array* createArray() {
             delete value;
         }
         array->items = items;
-    }
-    else if (array->type == STRING) {
+    } else if (array->type == STRING) {
         std::string* items = new std::string[array->size];
         for (int itemIndex = 0; itemIndex < array->size; itemIndex++) {
             std::cout << "item[" << itemIndex << "]: ";
@@ -219,6 +218,7 @@ Array* createArray() {
 
     return array;
 }
+
 void* getTypeValueAddress(Type type) {
     std::cout << "value: ";
     void* result;
@@ -240,7 +240,6 @@ void* getTypeValueAddress(Type type) {
     }
     return result;
 }
-
 
 void addEvent(Database &database) {
     std::string key = getKey();
@@ -284,8 +283,8 @@ void getEvent(Database &database) {
 }
 
 void listEvent(Database &database) {
-    for(int dbIndex = 0; dbIndex < database.currentSize; dbIndex++) {
-        Entry *entry = &(database.entries[dbIndex]);
+    for(int entryIndex = 0; entryIndex < database.currentSize; entryIndex++) {
+        Entry *entry = database.entries[entryIndex];
         printEntry(entry);
         std::cout << std::endl;
     }
