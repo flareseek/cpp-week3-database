@@ -126,16 +126,30 @@ Type getType() {
 
 void printValue(Type type, void* value) {
     if (type == INT) {
-        std::cout << *(static_cast<int*>(value));
+        printValue(*static_cast<int*>(value));
     } else if (type == DOUBLE) {
-        std::cout << std::to_string(*(static_cast<double*>(value)));
+        printValue(*static_cast<double*>(value));
     } else if (type == STRING) {
-        std::cout << "\"" << *(static_cast<std::string*>(value)) << "\"";
-    } 
+        printValue(*static_cast<std::string*>(value));
+    } else if (type == ARRAY) {
+        arrayPrint(static_cast<Array*>(value));
+    }
+}
+
+void printValue(int &value) {
+    std::cout << value;
+}
+
+void printValue(double &value) {
+    std::cout << std::to_string(value);
+}
+
+void printValue(std::string &value) {
+    std::cout << "\"" << value << "\"";
 }
 
 // template <typename T>
-// void printV(Type type, T value) {
+// void voidArrayPrint(Type type, T value) {
 //     for(int arrayIndex = 0; arrayIndex < array->size -1; arrayIndex++) {
 //         printValue(type, &(static_cast<T*>(array->items)[arrayIndex]));
 //         std::cout << ", ";
@@ -153,22 +167,22 @@ void arrayPrint(Array* array) {
         arrayPrint(&(static_cast<Array*>(array->items)[array->size - 1]));
     } else if (array->type == INT) {
         for(int arrayIndex = 0; arrayIndex < array->size -1; arrayIndex++) {
-            printValue(array->type, &(static_cast<int*>(array->items)[arrayIndex]));
+            printValue(static_cast<int*>(array->items)[arrayIndex]);
             std::cout << ", ";
         }
-        printValue(array->type, &(static_cast<int*>(array->items)[array->size - 1]));
+        printValue(static_cast<int*>(array->items)[array->size - 1]);
     } else if (array->type == DOUBLE) {
         for(int arrayIndex = 0; arrayIndex < array->size -1; arrayIndex++) {
-            printValue(array->type, &(static_cast<double*>(array->items)[arrayIndex]));
+            printValue(static_cast<double*>(array->items)[arrayIndex]);
             std::cout << ", ";
         }
-        printValue(array->type, &(static_cast<double*>(array->items)[array->size - 1]));
+        printValue(static_cast<double*>(array->items)[array->size - 1]);
     } else if (array->type == STRING) {
         for(int arrayIndex = 0; arrayIndex < array->size -1; arrayIndex++) {
-            printValue(array->type, &(static_cast<std::string*>(array->items)[arrayIndex]));
+            printValue(static_cast<std::string*>(array->items)[arrayIndex]);
             std::cout << ", ";
         }
-        printValue(array->type, &(static_cast<std::string*>(array->items)[array->size - 1]));
+        printValue(static_cast<std::string*>(array->items)[array->size - 1]);
     }
 
     std::cout << "]";
@@ -245,9 +259,5 @@ void* getTypeValueAddress(Type type) {
 
 void printEntry(Entry* entry) {
     std::cout << entry->key << ": ";
-    if (entry->type == ARRAY) {
-        arrayPrint(static_cast<Array*>(entry->value));
-    } else {
-        printValue(entry->type, entry->value);
-    }
+    printValue(entry->type, entry->value);
 }

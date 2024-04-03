@@ -68,6 +68,9 @@ void deleteEntry(Entry *entry);
 
 // 타입에 맞게 값을 출력합니다.
 void printValue(Type type, void* value);
+void printValue(int &value);
+void printValue(double &value);
+void printValue(std::string &value);
 
 // 배열을 출력합니다.
 void arrayPrint(Array* array);
